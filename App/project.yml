@@ -13,6 +13,12 @@ options:
 packages:
   Eddie:
     path: ..
+  # Anonymous crash reports (CrashReporter.swift). The app target links it, the package doesn't, so
+  # `swift build` and the self test never fetch it. An exact version: the installation ID is pinned
+  # through an SDK detail, which is checked again before every upgrade (XCODE_CLOUD.md).
+  Sentry:
+    url: https://github.com/getsentry/sentry-cocoa
+    exactVersion: 9.33.0
 
 targets:
   Edwell:
@@ -26,6 +32,8 @@ targets:
     dependencies:
       - package: Eddie
         product: EddieKit
+      - package: Sentry
+        product: Sentry
     info:
       path: Edwell/Info.plist
       properties:
@@ -37,6 +45,9 @@ targets:
         LSMinimumSystemVersion: "$(MACOSX_DEPLOYMENT_TARGET)"
         NSHumanReadableCopyright: "© 2026 IAMJARL"
         ITSAppUsesNonExemptEncryption: false
+        # Where crash reports go. Never a DSN in git: it comes from the build (SENTRY_DSN below, or
+        # Xcode Cloud's secret through ci_scripts/ci_pre_xcodebuild.sh). Empty means no reports.
+        SentryDSN: "$(SENTRY_DSN)"
         # The project type and its extensions match Editor.projectType and Editor.projectExtensions.
         UTExportedTypeDeclarations:
           - UTTypeIdentifier: com.iamjarl.edwell.project
@@ -53,12 +64,28 @@ targets:
             LSHandlerRank: Owner
             LSItemContentTypes:
               - com.iamjarl.edwell.project
-    # Only what the app uses: files the user picks in an open or save panel or drags in.
+    # Only what the app uses: files the user picks in an open or save panel or drags in, and outgoing
+    # connections for the anonymous crash reports (Sentry, nothing else; StoreKit needs none).
     entitlements:
       path: Edwell/Edwell.entitlements
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.files.user-selected.read-write: true
+        com.apple.security.network.client: true
+    # An archive without a DSN would ship with crash reports silently off. Xcode Cloud stops earlier
+    # (ci_pre_xcodebuild.sh); this catches an archive made anywhere else. Archives only, never a build.
+    postBuildScripts:
+      - name: Check the Sentry DSN
+        runOnlyWhenInstalling: true
+        basedOnDependencyAnalysis: false
+        inputFiles:
+          - $(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)
+        script: |
+          dsn=$(/usr/libexec/PlistBuddy -c "Print :SentryDSN" "$TARGET_BUILD_DIR/$INFOPLIST_PATH" 2>/dev/null || true)
+          case "$dsn" in
+            https://?*@?*/?*) echo "Sentry DSN present" ;;
+            *) echo "error: This archive has no Sentry DSN, so it would ship without crash reports. Set SENTRY_DSN (XCODE_CLOUD.md)."; exit 1 ;;
+          esac
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.iamjarl.edwell
@@ -74,6 +101,8 @@ targets:
         DEVELOPMENT_TEAM: KDWZ3WNLDK
         ENABLE_USER_SCRIPT_SANDBOXING: YES
         DEAD_CODE_STRIPPING: YES
+        # Set on the command line (`SENTRY_DSN=… ./build.sh`, `xcodebuild … SENTRY_DSN=…`), never here.
+        SENTRY_DSN: ""
 
   # The trial and the purchase against Edwell.storekit (StoreKitTest needs a test hosted in the app).
   EdwellStoreTests:

@@ -52,6 +52,7 @@ The developer half: what's in the app, how to build and test it, and how it's pu
 - Undo/redo, autosave, and projects saved as `.edwell` files (old `.eddie` files still open)
 - **Trial and purchase**: everything works for 14 days, then export needs one purchase ($9.99 once, no subscription). Projects always open and edit. Restore Purchases is in the Edwell menu. A build you make yourself with `./build.sh` is unlocked
 - **Send Feedback…** in the Help menu opens a draft to support@iamjarl.com in your mail app, with the app's and macOS's versions filled in. You see all of it and send it or not. About Edwell shows the version and the same address
+- **Anonymous crash reports** (from the release after 1.1): a crash, a hang, whether a session ended in a crash, and macOS's own performance reports go to Sentry, with the versions of Edwell and macOS and the Mac's model. Every Mac reports as the same anonymous user, with no installation or device ID, and file paths and names are taken out first. **Send Anonymous Crash Reports** in the Help menu turns them off. A build without a Sentry DSN, such as one from `./build.sh`, sends nothing
 - **Media that moves**: the app remembers each file it's given, follows it when it's renamed or moved, and asks with **Find…** when it can't be read
 
 ### Shortcuts
@@ -102,7 +103,7 @@ The app is built with Xcode from `App/Edwell.xcodeproj` (generated from `App/pro
 ./build.sh --install  # builds and copies it to /Applications
 ```
 
-The App Store version is built by Xcode Cloud from the `release` branch; see [XCODE_CLOUD.md](XCODE_CLOUD.md).
+The App Store version is built by Xcode Cloud from the `release` branch; see [XCODE_CLOUD.md](XCODE_CLOUD.md). Crash reports go to Sentry only from a build with a DSN, which never goes in git: Xcode Cloud has it as a secret, and `SENTRY_DSN=… ./build.sh` puts one in a build of your own. An archive without one stops with an error.
 
 English is the development language and Danish a localization, both in `App/Edwell/Localizable.xcstrings`. After adding or changing text in the interface, update the catalog from the code, then add the Danish translation the script lists:
 
@@ -122,7 +123,7 @@ The trial and the purchase are tested against Xcode's local StoreKit (`App/Edwel
 xcodebuild test -project App/Edwell.xcodeproj -scheme Edwell -destination 'platform=macOS' CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=
 ```
 
-Self test (makes test videos, exports a project with every kind of clip, and tests the editing, media access, the store build and the translations):
+Self test (makes test videos, exports a project with every kind of clip, and tests the editing, media access, the store build, the crash reports' scrubbing and the translations):
 
 ```bash
 swift build && .build/debug/Eddie --selftest /tmp/eddie-test
@@ -141,6 +142,7 @@ swift build && .build/debug/Eddie --selftest /tmp/eddie-test
 | `Sandbox.swift` | Media access under the App Sandbox: bookmarks and Find… |
 | `Feedback.swift` | Help › Send Feedback… and the About panel |
 | `Store.swift` | The 14-day trial and the one-time purchase (StoreKit 2) |
+| `CrashReports.swift` | The rules for the anonymous crash reports: what gets scrubbed, the environment, the switch. Sentry itself is in `App/Edwell/CrashReporter.swift` |
 | `Views/` | Media bin, preview, timeline, inspector and export |
 
 ### Documentation

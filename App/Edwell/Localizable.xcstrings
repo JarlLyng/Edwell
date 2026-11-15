@@ -2144,6 +2144,16 @@
         }
       }
     },
+    "Send Anonymous Crash Reports" : {
+      "localizations" : {
+        "da" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send anonyme nedbrudsrapporter"
+          }
+        }
+      }
+    },
     "Send Feedback…" : {
       "localizations" : {
         "da" : {

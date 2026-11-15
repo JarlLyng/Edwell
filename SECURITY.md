@@ -33,7 +33,7 @@ Edwell is a small video editor with a deliberately small attack surface:
 - **No backend.** No server, no database, no API of its own.
 - **No accounts.** No sign-up, no authentication, no passwords.
 - **Your media never leaves the Mac.** Editing and export are local, and nothing is uploaded.
-- **No tracking.** No analytics or crash reporting in the app. The only network traffic is Apple's StoreKit, for the trial and the purchase. The website uses Umami for aggregate page views, with no cookies and no fingerprinting.
+- **No tracking.** No analytics, accounts or IDs in the app. The only network traffic is Apple's StoreKit, for the trial and the purchase, and anonymous crash reports to Sentry: one shared user on every Mac, no installation or device ID, and file paths and names taken out before a report leaves the Mac (`App/Edwell/CrashReporter.swift`, from the release after 1.1). Help › Send Anonymous Crash Reports turns them off. The website uses Umami for aggregate page views, with no cookies and no fingerprinting.
 - **Sandboxed file access.** The app runs in the App Sandbox and reads and writes only the files and folders you pick, through security-scoped bookmarks.
 
 If you find a way to break any of those, I want to know.
