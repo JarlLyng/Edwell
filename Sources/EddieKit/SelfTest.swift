@@ -708,8 +708,8 @@ enum SelfTest {
 
     /// Anonymous crash reports without the network (#51): paths and file names come out of what a report
     /// says, the device and vendor IDs out of its contexts, `production` is only an App Store install, the
-    /// DSN is only a real one, the switch starts on, and PrivacyInfo.xcprivacy declares Crash Data and
-    /// Performance Data, not linked and not tracking. Inside Edwell.app the real Sentry options and
+    /// DSN is only a real one, the switch starts on, and PrivacyInfo.xcprivacy declares Crash Data, Performance
+    /// Data and Other Diagnostic Data, not linked and not tracking. Inside Edwell.app the real Sentry options and
     /// callbacks run on made-up reports too (`CrashReporter.selfCheck` in the app target).
     private static func crashReportTests() throws {
         func check(_ condition: Bool, _ message: String) throws { if !condition { throw err("Fejlrapporter: \(message)") } }
@@ -786,7 +786,8 @@ enum SelfTest {
         try check(manifest["NSPrivacyTracking"] as? Bool == false && (manifest["NSPrivacyTrackingDomains"] as? [Any])?.isEmpty == true, "sporing")
         let collected = manifest["NSPrivacyCollectedDataTypes"] as? [[String: Any]] ?? []
         try check(Set(collected.compactMap { $0["NSPrivacyCollectedDataType"] as? String })
-                  == ["NSPrivacyCollectedDataTypeCrashData", "NSPrivacyCollectedDataTypePerformanceData"], "datatyper \(collected)")
+                  == ["NSPrivacyCollectedDataTypeCrashData", "NSPrivacyCollectedDataTypePerformanceData",
+                      "NSPrivacyCollectedDataTypeOtherDiagnosticData"], "datatyper \(collected)")
         for type in collected {
             try check(type["NSPrivacyCollectedDataTypeLinked"] as? Bool == false && type["NSPrivacyCollectedDataTypeTracking"] as? Bool == false
                       && type["NSPrivacyCollectedDataTypePurposes"] as? [String] == ["NSPrivacyCollectedDataTypePurposeAppFunctionality"],
