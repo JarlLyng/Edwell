@@ -4,7 +4,7 @@ All notable changes to Edwell are written down here.
 
 ## [Unreleased]
 
-## [1.1] - in review
+## [1.1] - 2026-11-17
 
 A quicker, quieter editor (#34).
 
