@@ -1,6 +1,7 @@
 import AVFoundation
 import AppKit
 import Security
+import StoreKit
 import UniformTypeIdentifiers
 
 /// `Eddie --selftest <dir>`: generates test media, builds a project with every clip type,
@@ -124,6 +125,9 @@ enum SelfTest {
 
         try feedbackTests()
         print("feedback tests ok")
+
+        try crashReportTests()
+        print("crash report tests ok")
 
         try await mediaAccessTests(dir, source: landscape)
         print("media access tests ok")
@@ -702,6 +706,111 @@ enum SelfTest {
         try check(range.location != NSNotFound && credits.attribute(.link, at: range.location, effectiveRange: nil) as? URL != nil, "link i Om")
     }
 
+    /// Anonymous crash reports without the network (#51): paths and file names come out of what a report
+    /// says, the device and vendor IDs out of its contexts, `production` is only an App Store install, the
+    /// DSN is only a real one, the switch starts on, and PrivacyInfo.xcprivacy declares Crash Data, Performance
+    /// Data and Other Diagnostic Data, not linked and not tracking. Inside Edwell.app the real Sentry options and
+    /// callbacks run on made-up reports too (`CrashReporter.selfCheck` in the app target).
+    private static func crashReportTests() throws {
+        func check(_ condition: Bool, _ message: String) throws { if !condition { throw err("Fejlrapporter: \(message)") } }
+
+        let redacted: [(String, String)] = [
+            ("Error Domain=NSCocoaErrorDomain Code=260 \"The file “Ambient Session 12.mov” couldn’t be opened.\" UserInfo={NSFilePath=/Users/someone/Movies/Ambient Session 12.mov, NSUnderlyingError=0x6000 {Error Domain=NSPOSIXErrorDomain Code=2 \"No such file or directory\"}}",
+             "Error Domain=NSCocoaErrorDomain Code=260 \"The file “<name>” couldn’t be opened.\" UserInfo={NSFilePath=<path>{Error Domain=NSPOSIXErrorDomain Code=2 \"No such file or directory\"}}"),
+            ("Could not read file:///Users/someone/Movies/My%20Clip.mov.", "Could not read <path>"),
+            ("Opened ~/Desktop/Wedding (final), take 2.edwell", "Opened <path>"),
+            ("/Volumes/Footage/Day 2.mov is missing", "<path>"),
+            ("Saved to /private/var/folders/xy/T/export.mp4\nThen stopped", "Saved to <path>\nThen stopped"),
+            ("Autosave in /Users/someone/Library/Containers/com.iamjarl.edwell/Data/Library/Autosave.edwell", "Autosave in <path>"),
+            ("‘Holiday.mov’ is busy", "‘<name>’ is busy"),
+        ]
+        for (text, expected) in redacted {
+            try check(CrashReports.redact(text) == expected, "\(text) blev \(CrashReports.redact(text))")
+        }
+        // What a crash needs stays as it is: messages, symbols, system paths and plain numbers.
+        for text in ["Fatal error: Index out of range", "-[AVPlayerItem seekToTime:]: invalid time", "couldn’t",
+                     "/System/Library/Frameworks/AVFoundation.framework/AVFoundation", "https://edwell.iamjarl.com/support",
+                     "1080/1920 at 16/9", "Edwell/Editor.swift:120"] {
+            try check(CrashReports.redact(text) == text, "rørte \(text): \(CrashReports.redact(text))")
+        }
+        try check(CrashReports.redactHome("/Users/someone/Downloads/Edwell.app/Contents/MacOS/Edwell") == "~/Downloads/Edwell.app/Contents/MacOS/Edwell"
+                  && CrashReports.redactHome("/Applications/Edwell.app/Contents/MacOS/Edwell") == "/Applications/Edwell.app/Contents/MacOS/Edwell"
+                  && CrashReports.redactHome("/usr/lib/libobjc.A.dylib") == "/usr/lib/libobjc.A.dylib", "binære stier")
+
+        let contexts = CrashReports.scrub(contexts: [
+            "app": ["device_app_hash": "0a1b2c", "app_version": "1.2", "app_id": "E3B0C442-98FC-1C14"],
+            "device": ["id": "device-id", "model": "Mac15,3", "files": ["/Users/someone/a.mov", ["path": "~/b.mov"]]],
+            "os": ["name": "macOS", "version": "27.1"],
+        ])
+        try check(contexts["app"]?["device_app_hash"] == nil && contexts["device"]?["id"] == nil, "ID'er \(contexts)")
+        try check(contexts["app"]?["app_version"] as? String == "1.2" && contexts["device"]?["model"] as? String == "Mac15,3"
+                  && contexts["os"]?["version"] as? String == "27.1", "de grove fakta \(contexts)")
+        let files = contexts["device"]?["files"] as? [Any]
+        try check(files?.first as? String == "<path>" && (files?.last as? [String: Any])?["path"] as? String == "<path>", "dybe stier \(files ?? [])")
+
+        // Only a real DSN starts anything, and nothing in git is one.
+        let dsn = "https://0123456789abcdef@o1.ingest.de.sentry.io/2"
+        try check(CrashReports.dsn(in: [CrashReports.dsnKey: "  \(dsn)\n"]) == dsn, "DSN")
+        for value in ["", "$(SENTRY_DSN)", "not a dsn", "https://o1.ingest.de.sentry.io/2"] {
+            try check(CrashReports.dsn(in: [CrashReports.dsnKey: value]) == nil, "DSN \(value)")
+        }
+        try check(CrashReports.dsn(in: nil) == nil && CrashReports.dsn(in: [:]) == nil, "ingen DSN")
+
+        typealias Env = CrashReports.Environment
+        let environments: [(Bool, Bool, AppStore.Environment?, Env)] = [
+            (false, false, .production, .production), (false, false, .sandbox, .testflight),
+            (false, false, .xcode, .development), (false, false, nil, .unknown),
+            (true, false, .production, .development), (false, true, .production, .development),
+        ]
+        for (debug, local, store, expected) in environments {
+            let found = CrashReports.environment(debugBuild: debug, localBuild: local, appStore: store)
+            try check(found == expected, "miljø \(debug) \(local) \(String(describing: store)): \(found)")
+        }
+
+        // The switch starts on and remembers off.
+        let suite = "edwell-selftest-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        try check(CrashReports.isAllowed(defaults), "slået fra fra start")
+        defaults.set(false, forKey: CrashReports.preferenceKey)
+        try check(!CrashReports.isAllowed(defaults), "kan ikke slås fra")
+        defaults.removePersistentDomain(forName: suite)
+
+        // The privacy manifest says what the reports are, and the policy says the same.
+        let insideApp = Bundle.main.bundleURL.pathExtension == "app"
+        let repo = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+        guard let manifestURL = insideApp ? Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy")
+                                          : repo.appendingPathComponent("App/Edwell/PrivacyInfo.xcprivacy"),
+              let manifest = try PropertyListSerialization.propertyList(from: Data(contentsOf: manifestURL), format: nil) as? [String: Any] else {
+            throw err("Fejlrapporter: ingen PrivacyInfo.xcprivacy")
+        }
+        try check(manifest["NSPrivacyTracking"] as? Bool == false && (manifest["NSPrivacyTrackingDomains"] as? [Any])?.isEmpty == true, "sporing")
+        let collected = manifest["NSPrivacyCollectedDataTypes"] as? [[String: Any]] ?? []
+        try check(Set(collected.compactMap { $0["NSPrivacyCollectedDataType"] as? String })
+                  == ["NSPrivacyCollectedDataTypeCrashData", "NSPrivacyCollectedDataTypePerformanceData",
+                      "NSPrivacyCollectedDataTypeOtherDiagnosticData"], "datatyper \(collected)")
+        for type in collected {
+            try check(type["NSPrivacyCollectedDataTypeLinked"] as? Bool == false && type["NSPrivacyCollectedDataTypeTracking"] as? Bool == false
+                      && type["NSPrivacyCollectedDataTypePurposes"] as? [String] == ["NSPrivacyCollectedDataTypePurposeAppFunctionality"],
+                      "\(type["NSPrivacyCollectedDataType"] ?? "?")")
+        }
+        if !insideApp {
+            let policy = try String(contentsOf: repo.appendingPathComponent("website/privacy.html"), encoding: .utf8)
+            let home = try String(contentsOf: repo.appendingPathComponent("website/index.html"), encoding: .utf8)
+            try check(policy.contains("crash report") && !policy.contains("does not collect any data"), "privatlivspolitikken")
+            try check(!home.contains("Data Not Collected"), "forsiden lover Data Not Collected")
+        }
+
+        // Inside Edwell.app: the app target's Sentry options and callbacks on made-up reports. From `swift build`
+        // there is no Sentry and no switch in the Help menu.
+        if insideApp {
+            guard let reporter = CrashReports.reporter else { throw err("Fejlrapporter: appen har ingen Sentry") }
+            let failures = reporter.selfCheck()
+            try check(failures.isEmpty, failures.joined(separator: "\n"))
+        } else {
+            try check(CrashReports.reporter == nil && !CrashReports.isAvailable, "Sentry i swift build")
+        }
+    }
+
     /// The Mac App Store build declares what the code expects: the bundle id and copyright, the project type
     /// with `.edwell` first and old `.eddie` files still opening, no entitlement beyond the sandbox and
     /// files the user picks, and one minimum macOS. Inside Edwell.app it checks the app itself; from `swift build` it reads App/.
@@ -719,6 +828,8 @@ enum SelfTest {
             let task = SecTaskCreateFromSelf(nil)!
             let sandboxed = SecTaskCopyValueForEntitlement(task, "com.apple.security.app-sandbox" as CFString, nil) as? Bool
             try check(sandboxed == true, "ikke i sandkassen")
+            let network = SecTaskCopyValueForEntitlement(task, "com.apple.security.network.client" as CFString, nil) as? Bool
+            try check(network == true, "ingen netværksadgang til fejlrapporter")
         } else {
             let app = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
                 .deletingLastPathComponent().appendingPathComponent("App")
@@ -727,11 +838,39 @@ enum SelfTest {
                 return try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] ?? [:]
             }
             info = try plist("Edwell/Info.plist")
+            // The sandbox, files the user picks, and outgoing connections for the crash reports (Sentry only).
             let entitlements = try plist("Edwell/Edwell.entitlements")
-            try check(Set(entitlements.keys) == ["com.apple.security.app-sandbox", "com.apple.security.files.user-selected.read-write"]
+            try check(Set(entitlements.keys) == ["com.apple.security.app-sandbox", "com.apple.security.files.user-selected.read-write",
+                                                 "com.apple.security.network.client"]
                       && entitlements.values.allSatisfy { $0 as? Bool == true }, "entitlements \(entitlements.keys.sorted())")
             let project = try String(contentsOf: app.appendingPathComponent("Edwell.xcodeproj/project.pbxproj"), encoding: .utf8)
             try check(project.contains("PRODUCT_BUNDLE_IDENTIFIER = com.iamjarl.edwell;"), "bundle id")
+
+            // The DSN comes from the build, never from git, and an archive without one stops.
+            try check(info[CrashReports.dsnKey] as? String == "$(SENTRY_DSN)", "en DSN i Info.plist")
+            for text in [project, try String(contentsOf: app.appendingPathComponent("project.yml"), encoding: .utf8)] {
+                try check(!text.contains("ingest.") && !text.contains("sentry.io/"), "en DSN i projektet")
+            }
+            try check(project.contains("Check the Sentry DSN") && project.contains("runOnlyForDeploymentPostprocessing = 1;"),
+                      "arkivet tjekker ikke DSN")
+            // sentry-cocoa 9.12 or newer, pinned for the project (Xcode Cloud resolves from this file), with the
+            // design system at the same pin as the package's own Package.resolved.
+            func pins(_ url: URL) throws -> [String: String] {
+                let json = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
+                let pins = json?["pins"] as? [[String: Any]] ?? []
+                return Dictionary(uniqueKeysWithValues: pins.compactMap { pin in
+                    guard let id = pin["identity"] as? String, let state = pin["state"] as? [String: Any],
+                          let version = state["version"] as? String else { return nil }
+                    return (id, version)
+                })
+            }
+            let projectPins = try pins(app.appendingPathComponent("Edwell.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"))
+            let packagePins = try pins(app.deletingLastPathComponent().appendingPathComponent("Package.resolved"))
+            let sentry = projectPins["sentry-cocoa"]?.split(separator: ".").compactMap { Int($0) } ?? []
+            try check(sentry.count == 3 && (sentry[0], sentry[1]) >= (9, 12), "sentry-cocoa \(projectPins["sentry-cocoa"] ?? "mangler")")
+            try check(project.contains("version = \(projectPins["sentry-cocoa"] ?? "?");"), "sentry-cocoa følger ikke project.yml")
+            try check(projectPins["iamjarl-design"] != nil && projectPins["iamjarl-design"] == packagePins["iamjarl-design"],
+                      "iamjarl-design \(projectPins["iamjarl-design"] ?? "?") / \(packagePins["iamjarl-design"] ?? "?")")
 
             // One minimum macOS everywhere: the package, project.yml, the generated project, and Info.plist after it.
             func found(_ pattern: String, in text: String) -> [String] {

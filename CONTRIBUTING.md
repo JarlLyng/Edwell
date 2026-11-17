@@ -23,7 +23,7 @@ Bug reports, ideas and pull requests are welcome. For a bigger change, open an i
 - **No hard-coded colours, radii, spacing or type sizes.** The UI uses the [IAMJARL design system](https://github.com/JarlLyng/iamjarl-design) tokens.
 - **Old projects keep opening.** A new field in a project file needs a default in the hand-written `init(from:)` in `Model.swift`.
 - **macOS 14 stays the floor.** Anything newer goes behind `#available`.
-- **No new entitlements, network code, analytics or accounts.**
+- **No new entitlements, network code, analytics or accounts.** The one connection besides StoreKit is the anonymous crash reports (`App/Edwell/CrashReporter.swift`), and nothing else may use it.
 - Link the issue your change closes.
 
 ## Reporting bugs

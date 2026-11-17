@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05045D8E7D92D0B3B2B3CD00 /* CrashReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96ACD551199E05D4148C81D3 /* CrashReporter.swift */; };
 		473D852DD330C4C4BFFA32EA /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6DEF0B32612A8C3048AE0E2F /* Localizable.xcstrings */; };
 		48A2D36AEBB0D9FC3CCFE000 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 102CECAD4FB6C9647D12AA43 /* main.swift */; };
 		7806286151E738DE27C67514 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 71C3631B33797314A6388B7B /* InfoPlist.xcstrings */; };
 		9A1F42D710BA4C512A5F9CDA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 795A1ECDF7A40C0C7B83EB97 /* Assets.xcassets */; };
+		C4A15B3866CC6923B580670C /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 69C58EA07D49E9792ED615D5 /* Sentry */; };
 		E254D33A0481741B8E38FCCB /* StoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BCF3ADEE459DEF7BA6EF507 /* StoreTests.swift */; };
 		EDC44AD85C348D4A05030434 /* EddieKit in Frameworks */ = {isa = PBXBuildFile; productRef = 503E2ECDC8E09E06AA98F6FF /* EddieKit */; };
+		F669A67C8A4BA91F33C96849 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 6D95B96C44491930CE78B439 /* PrivacyInfo.xcprivacy */; };
 		F7A6513709943A536B83BDBC /* Edwell.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 2CFE524E49CF2FCA171E72C6 /* Edwell.storekit */; };
 		F9CD18BF17BBEA472B8684F8 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 7E9BD1EEE5655DFB91B88D2C /* Fonts */; };
 /* End PBXBuildFile section */
@@ -32,11 +35,13 @@
 		1F04DDD8434A0DB4FBD6B2DD /* Edwell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Edwell.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CFE524E49CF2FCA171E72C6 /* Edwell.storekit */ = {isa = PBXFileReference; path = Edwell.storekit; sourceTree = "<group>"; };
 		5BCF3ADEE459DEF7BA6EF507 /* StoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreTests.swift; sourceTree = "<group>"; };
+		6D95B96C44491930CE78B439 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6DEF0B32612A8C3048AE0E2F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		71C3631B33797314A6388B7B /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		75C47270DEF25C8EC469054B /* EdwellStoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EdwellStoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		795A1ECDF7A40C0C7B83EB97 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7E9BD1EEE5655DFB91B88D2C /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = ../Resources/Fonts; sourceTree = SOURCE_ROOT; };
+		96ACD551199E05D4148C81D3 /* CrashReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashReporter.swift; sourceTree = "<group>"; };
 		A6FCEC50F3ABE4A87DB534CA /* affectionate-gauss-e23e4c */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "affectionate-gauss-e23e4c"; path = ..; sourceTree = SOURCE_ROOT; };
 		B4C0757438101EB616E1696F /* Edwell.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Edwell.entitlements; sourceTree = "<group>"; };
 		D4E39125A5E7C0B5CB9B7531 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -48,6 +53,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDC44AD85C348D4A05030434 /* EddieKit in Frameworks */,
+				C4A15B3866CC6923B580670C /* Sentry in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,11 +110,13 @@
 			isa = PBXGroup;
 			children = (
 				795A1ECDF7A40C0C7B83EB97 /* Assets.xcassets */,
+				96ACD551199E05D4148C81D3 /* CrashReporter.swift */,
 				B4C0757438101EB616E1696F /* Edwell.entitlements */,
 				D4E39125A5E7C0B5CB9B7531 /* Info.plist */,
 				71C3631B33797314A6388B7B /* InfoPlist.xcstrings */,
 				6DEF0B32612A8C3048AE0E2F /* Localizable.xcstrings */,
 				102CECAD4FB6C9647D12AA43 /* main.swift */,
+				6D95B96C44491930CE78B439 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Edwell;
 			sourceTree = "<group>";
@@ -131,6 +139,7 @@
 				890CC6869D6A3CD5CFFF7CC3 /* Sources */,
 				C71B5CFF22034B7B2BE00CE8 /* Resources */,
 				A2FAFA8592A629BE9BEDED37 /* Frameworks */,
+				5AA2FE060A71248F5E6BBA6F /* Check the Sentry DSN */,
 			);
 			buildRules = (
 			);
@@ -139,6 +148,7 @@
 			name = Edwell;
 			packageProductDependencies = (
 				503E2ECDC8E09E06AA98F6FF /* EddieKit */,
+				69C58EA07D49E9792ED615D5 /* Sentry */,
 			);
 			productName = Edwell;
 			productReference = 1F04DDD8434A0DB4FBD6B2DD /* Edwell.app */;
@@ -189,6 +199,7 @@
 			mainGroup = 64EE6BA1358F19E17CEDA4F0;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				556258C1AB1BF279F89669AB /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 				C99AE8D68AA2377BC74DFD02 /* XCLocalSwiftPackageReference ".." */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -219,10 +230,34 @@
 				F9CD18BF17BBEA472B8684F8 /* Fonts in Resources */,
 				7806286151E738DE27C67514 /* InfoPlist.xcstrings in Resources */,
 				473D852DD330C4C4BFFA32EA /* Localizable.xcstrings in Resources */,
+				F669A67C8A4BA91F33C96849 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5AA2FE060A71248F5E6BBA6F /* Check the Sentry DSN */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "Check the Sentry DSN";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "dsn=$(/usr/libexec/PlistBuddy -c \"Print :SentryDSN\" \"$TARGET_BUILD_DIR/$INFOPLIST_PATH\" 2>/dev/null || true)\ncase \"$dsn\" in\n  https://?*@?*/?*) echo \"Sentry DSN present\" ;;\n  *) echo \"error: This archive has no Sentry DSN, so it would ship without crash reports. Set SENTRY_DSN (XCODE_CLOUD.md).\"; exit 1 ;;\nesac\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		21E7D7446994EDA89CA8C2DF /* Sources */ = {
@@ -237,6 +272,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05045D8E7D92D0B3B2B3CD00 /* CrashReporter.swift in Sources */,
 				48A2D36AEBB0D9FC3CCFE000 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -330,6 +366,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.iamjarl.edwell;
 				PRODUCT_NAME = Edwell;
 				SDKROOT = macosx;
+				SENTRY_DSN = "";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -438,6 +475,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.iamjarl.edwell;
 				PRODUCT_NAME = Edwell;
 				SDKROOT = macosx;
+				SENTRY_DSN = "";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -500,10 +538,26 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		556258C1AB1BF279F89669AB /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa";
+			requirement = {
+				kind = exactVersion;
+				version = 9.33.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		503E2ECDC8E09E06AA98F6FF /* EddieKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = EddieKit;
+		};
+		69C58EA07D49E9792ED615D5 /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 556258C1AB1BF279F89669AB /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

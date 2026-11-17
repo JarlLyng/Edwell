@@ -4,12 +4,14 @@
 #   ./build.sh            build
 #   ./build.sh --install  build and copy to /Applications
 #   ./build.sh --open     build and open the app
+# Without a Sentry DSN the build sends no crash reports. SENTRY_DSN=… ./build.sh puts one in (never in git);
+# a build signed on this Mac reports as the `development` environment.
 set -euo pipefail
 cd "$(dirname "$0")"
 
 xcodebuild -project App/Edwell.xcodeproj -scheme Edwell -configuration Release \
     -destination 'generic/platform=macOS' -derivedDataPath build/DerivedData -quiet \
-    CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= build
+    CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= ${SENTRY_DSN:+SENTRY_DSN=$SENTRY_DSN} build
 
 APP=build/Edwell.app
 rm -rf "$APP"

@@ -12,7 +12,10 @@ public enum Launcher {
         } else if let i = CommandLine.arguments.firstIndex(of: "--selftest") {
             let dir = CommandLine.arguments.dropFirst(i + 1).first ?? NSTemporaryDirectory()
             SelfTest.run(outputDirectory: URL(fileURLWithPath: dir))
+        } else if CommandLine.arguments.contains("--send-test-report") {
+            CrashReports.sendTestReport()
         } else {
+            CrashReports.startIfAllowed()
             EddieApp.main()
         }
     }
@@ -153,6 +156,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 struct EddieCommands: Commands {
     let editor: Editor
     let store: Store
+    @AppStorage(CrashReports.preferenceKey) private var sendsCrashReports = true
 
     var body: some Commands {
         CommandGroup(replacing: .appInfo) {
@@ -162,6 +166,13 @@ struct EddieCommands: Commands {
         CommandGroup(replacing: .help) {
             ShortcutsMenuItem()
             Button("Send Feedback…") { Feedback.compose(editor: editor) }
+            // Only in a build that can send (an App Store or TestFlight build has a DSN).
+            if CrashReports.isAvailable {
+                Divider()
+                Toggle("Send Anonymous Crash Reports", isOn: Binding(
+                    get: { sendsCrashReports },
+                    set: { CrashReports.setAllowed($0); sendsCrashReports = $0 }))
+            }
         }
         CommandGroup(after: .appInfo) {
             if store.access != .unlocked {
