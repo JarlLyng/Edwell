@@ -14,7 +14,7 @@ Bug reports, ideas and pull requests are welcome. For a bigger change, open an i
    It must end with `SELFTEST OK`.
 3. For the app itself, open `App/Edwell.xcodeproj` in Xcode, or run `./build.sh --open`. A build you make yourself is unlocked.
 
-[`AGENTS.md`](AGENTS.md) explains how the app fits together and the gotchas (the App Sandbox, the deployment target, `@ViewState`).
+[`docs/development.md`](docs/development.md) explains how the app fits together and the gotchas (the App Sandbox, the deployment target, `@ViewState`).
 
 ## Before you send a pull request
 
