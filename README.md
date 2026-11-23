@@ -147,7 +147,8 @@ swift build && .build/debug/Eddie --selftest /tmp/eddie-test
 
 ### Documentation
 
-- [`AGENTS.md`](AGENTS.md): project context for developers and AI assistants, with the gotchas.
+- [`AGENTS.md`](AGENTS.md): project context for developers and AI assistants, and the rules for working in this repo.
+- [`docs/development.md`](docs/development.md): how the app is built, tested and put together, and the gotchas.
 - [`docs/rush-reference.md`](docs/rush-reference.md): what Premiere Rush did, and how Edwell matches it.
 - [`XCODE_CLOUD.md`](XCODE_CLOUD.md): how releases are built.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md), [`CHANGELOG.md`](CHANGELOG.md) and [`SECURITY.md`](SECURITY.md).
