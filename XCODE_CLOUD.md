@@ -67,8 +67,12 @@ only when the App Store installed it; TestFlight is `testflight`, and builds fro
 ```
 
 It sends one session and one message, without opening a window, and says whether Sentry took them. In
-Sentry the message should show `user.id` `anonymous`, no `device_app_hash`, the right environment, and the
-made-up file in it as `<path>`.
+Sentry the message should show no user and no IP address, no `device_app_hash` or `device.id`, the right
+environment, and the made-up file in it as `<path>`. The app sends `user.id` `anonymous`, but the
+organisation's data scrubbing removes `user.id` and IP addresses before an event is stored, so no user is
+what a good report looks like. The envelope check below is where `anonymous` itself is seen. A copy
+installed through TestFlight reports as `testflight`, even though it is the App Store's binary.
+Last run on 1.2 (build 11) on 2026-11-24: passed (#51).
 
 **Before every sentry-cocoa upgrade**, check the envelopes again, because a session's `did` is the shared
 user only through an SDK detail (the `INSTALLATION` file, `CrashReporter.pinInstallationID`). Build with a
