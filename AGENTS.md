@@ -8,8 +8,8 @@ Quick-start context for developers and AI assistants. The details, with every go
 
 A small macOS video editor that replaces Adobe Premiere Rush (support ended 2026-09-30): cut clips
 on a timeline, add a title, pick a format, export an MP4. Everything happens on the Mac, with no
-account and no tracking; the only network traffic is StoreKit's and, from 1.2, anonymous crash
-reports (#51). The maker cuts hour-long Ambient Session recordings with it every week. The UI is in
+account and no tracking; the only network traffic is StoreKit's and anonymous crash reports
+(#51). The maker cuts hour-long Ambient Session recordings with it every week. The UI is in
 English with Danish; code, comments and commit messages are in English.
 
 - **Developer:** [IAMJARL](https://iamjarl.com) (Jarl). The full personal name is never used in copy or docs; see `BRAND_LEGAL.md` in the hub.
@@ -20,7 +20,7 @@ English with Danish; code, comments and commit messages are in English.
 - **License:** [MIT](LICENSE), open source.
 - **Price:** every feature for 14 days, then $9.99 once to keep exporting (one in-app purchase; no
   subscription, no ads, no watermark).
-- **Status:** 1.1 is live on the Mac App Store. Versions and dates are in `CHANGELOG.md`.
+- **Status:** 1.2 is live on the Mac App Store. Versions and dates are in `CHANGELOG.md`.
 
 ## Boundaries: work only in this repo
 
@@ -107,7 +107,7 @@ duplicate, copy and paste, detach audio (E); speed per whole clip; size, positio
 opacity, flip and a soft crop; cross dissolve, dips and pushes; static titles; volume and fades; MP4
 export (H.264 or HEVC, 1080p); undo, autosave, `.edwell` files and media followed when moved
 (**Find…** when it can't be read); New Ambient Session behind ⌥ in the File menu; the 14-day trial
-and one purchase; Send Feedback…; and from 1.2 the crash reports, with a switch in the Help menu.
+and one purchase; Send Feedback…; and the anonymous crash reports, with a switch in the Help menu.
 
 ### Features that do NOT exist (common hallucination targets)
 

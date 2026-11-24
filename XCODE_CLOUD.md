@@ -55,7 +55,7 @@ workflow exists or which branch it builds. Look in:
 
 ## Crash reports
 
-Edwell sends anonymous crash reports to Sentry from the release after 1.1 (`App/Edwell/CrashReporter.swift`,
+Edwell sends anonymous crash reports to Sentry from 1.2 (`App/Edwell/CrashReporter.swift`,
 the rules in `Sources/EddieKit/CrashReports.swift`, `docs/development.md` › Gotchas). A build reports as `production`
 only when the App Store installed it; TestFlight is `testflight`, and builds from Xcode or `./build.sh` are
 `development`.
