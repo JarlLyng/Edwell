@@ -4,7 +4,7 @@ All notable changes to Edwell are written down here.
 
 ## [Unreleased]
 
-## [1.2] - in TestFlight
+## [1.2] - 2026-11-24
 
 ### Added
 - Anonymous crash reports (#51). When Edwell crashes or hangs it sends a report to Sentry, stored in the EU, with the versions of Edwell and macOS, the Mac's model and where in the code it happened, plus whether each session ended in a crash and macOS's own hang and performance reports. Every Mac reports as the same anonymous user, with no installation or device ID, and file paths and names are taken out before a report leaves the Mac. Help › Send Anonymous Crash Reports turns them off. The privacy policy, the privacy manifest and the App Store label say the same: Data Not Linked to You, Diagnostics (Crash Data, Performance Data, Other Diagnostic Data).
