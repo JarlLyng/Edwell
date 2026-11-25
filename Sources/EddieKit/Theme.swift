@@ -6,9 +6,26 @@ import SwiftUI
 typealias Tokens = DesignTokens
 
 extension Tokens {
-    /// A clip on the timeline: a neutral tint of the text colour, so it reads on the lane in both modes.
-    /// The kind of clip shows in its content (frames, waveform, text) and icon rather than in a colour of its own.
-    static let clipFill = Palette.Text.primary.opacity(0.14)
+    /// A clip's fill by its kind: the design system's categorical fills (iamjarl-design#112), which
+    /// `text.primary` reads on in both modes and which keep clear of `primary` and the state colours.
+    /// A selected clip keeps its fill; the selection is the `primary` border.
+    static func clipFill(_ kind: ClipKind) -> Color {
+        switch kind {
+        case .video: Palette.Category.blue
+        case .image: Palette.Category.amber
+        case .audio: Palette.Category.teal
+        case .title: Palette.Category.rose
+        }
+    }
+
+    /// The same fill for a file in the media bin, by the kind of clip it becomes.
+    static func clipFill(_ kind: MediaKind) -> Color {
+        switch kind {
+        case .video: clipFill(ClipKind.video)
+        case .image: clipFill(ClipKind.image)
+        case .audio: clipFill(ClipKind.audio)
+        }
+    }
 }
 
 /// The design system's primary button: `primary` with `onPrimary` text. Compact, it fits the toolbar.

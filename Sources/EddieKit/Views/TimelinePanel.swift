@@ -546,7 +546,8 @@ private struct ClipView: View {
         let selected = editor.selection == clip.id
         let width = clip.duration * editor.pps
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: Tokens.Radius.sm).fill(selected ? Tokens.Palette.primarySubtle : Tokens.clipFill)
+            // The fill always says what the clip is; the selection is the primary border below.
+            RoundedRectangle(cornerRadius: Tokens.Radius.sm).fill(Tokens.clipFill(clip.kind))
             // The thumbnail strip can be wider than the clip; pin it left so the label stays put.
             content
                 .frame(width: max(width, 3), height: row.height - 6, alignment: .bottomLeading)
@@ -620,13 +621,16 @@ private struct ClipView: View {
         switch clip.kind {
         case .video, .image:
             if span.end > span.start {
+                // The frames fill the area under the label, as the waveform does for audio, so the band
+                // behind the label keeps the kind's colour whatever the footage looks like.
+                let frames = height - Tokens.Spacing.lg
                 ZStack(alignment: .bottomLeading) {
-                    if let tile = editor.cache.tile(for: clip.mediaID, height: height) {
+                    if let tile = editor.cache.tile(for: clip.mediaID, height: frames) {
                         // Start on a whole tile so the frames don't slide while scrolling.
                         let first = (span.start / tile.size.width).rounded(.down) * tile.size.width
                         Rectangle()
                             .fill(ImagePaint(image: Image(nsImage: tile)))
-                            .frame(width: span.end - first, height: height)
+                            .frame(width: span.end - first, height: frames)
                             .offset(x: first)
                             .opacity(0.75)
                     }
