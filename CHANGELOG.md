@@ -4,6 +4,8 @@ All notable changes to Edwell are written down here.
 
 ## [Unreleased]
 
+## [1.3] - in TestFlight
+
 ### Changed
 - Clips on the timeline are coloured by kind with the design system's categorical colours (#59): video blue, photos amber, audio teal, titles rose, in light and dark mode. A selected clip keeps its colour and shows the selection with its border, and the frames of a video or photo sit under the name, so the band behind it keeps the clip's colour. The media bin uses the same colour per kind.
 
