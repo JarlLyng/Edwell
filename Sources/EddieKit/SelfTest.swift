@@ -2,6 +2,7 @@ import AVFoundation
 import AppKit
 import Security
 import StoreKit
+import SwiftUI
 import UniformTypeIdentifiers
 
 /// `Eddie --selftest <dir>`: generates test media, builds a project with every clip type,
@@ -111,6 +112,9 @@ enum SelfTest {
 
         try await quieterEditorTests(dir, video: landscape)
         print("quieter editor tests ok")
+
+        try await clipColourTests()
+        print("clip colour tests ok")
 
         let photo = dir.appendingPathComponent("photo.jpg")
         try writeImage(to: photo)
@@ -441,6 +445,52 @@ enum SelfTest {
         try check(second?.track == 1 && second?.title?.y == 0.2 && editor.titleToType == second?.id, "anden titel \(second?.title?.y ?? -1)")
         editor.selection = first?.id
         try check(editor.titleToType == nil, "valg af et andet klip")
+    }
+
+    /// Clips are coloured by kind with the design system's categorical fills (#59): four fills apart from
+    /// each other, from the selection's `primary` and from a missing file's `state.error`, in light and in
+    /// dark, with the label's `text.primary` readable on each. The media bin uses the same fill per kind.
+    @MainActor
+    private static func clipColourTests() throws {
+        func check(_ condition: Bool, _ message: String) throws { if !condition { throw err("Klipfarver: \(message)") } }
+        func rgb(_ color: Color, dark: Bool) -> [Double] {
+            var out: [Double] = []
+            NSAppearance(named: dark ? .darkAqua : .aqua)!.performAsCurrentDrawingAppearance {
+                let c = NSColor(color).usingColorSpace(.sRGB)!
+                out = [c.redComponent, c.greenComponent, c.blueComponent]
+            }
+            return out
+        }
+        func luminance(_ c: [Double]) -> Double {
+            let l = c.map { $0 <= 0.04045 ? $0 / 12.92 : pow(($0 + 0.055) / 1.055, 2.4) }
+            return 0.2126 * l[0] + 0.7152 * l[1] + 0.0722 * l[2]
+        }
+        func contrast(_ a: [Double], _ b: [Double]) -> Double {
+            let (x, y) = (luminance(a), luminance(b))
+            return (max(x, y) + 0.05) / (min(x, y) + 0.05)
+        }
+        func same(_ a: [Double], _ b: [Double]) -> Bool { zip(a, b).allSatisfy { abs($0 - $1) < 0.02 } }
+
+        let kinds: [ClipKind] = [.video, .image, .audio, .title]
+        for dark in [false, true] {
+            let mode = dark ? "dark" : "light"
+            let fills = kinds.map { rgb(Tokens.clipFill($0), dark: dark) }
+            for i in fills.indices {
+                for j in fills.indices where j > i {
+                    try check(!same(fills[i], fills[j]), "\(kinds[i]) og \(kinds[j]) ens i \(mode)")
+                }
+                try check(!same(fills[i], rgb(Tokens.Palette.primary, dark: dark)), "\(kinds[i]) som primary i \(mode)")
+                try check(!same(fills[i], rgb(Tokens.Palette.State.error, dark: dark)), "\(kinds[i]) som fejl i \(mode)")
+                let ratio = contrast(fills[i], rgb(Tokens.Palette.Text.primary, dark: dark))
+                try check(ratio >= 4.5, "tekst paa \(kinds[i]) i \(mode): \(ratio)")
+            }
+            try check(!same(rgb(Tokens.clipFill(ClipKind.video), dark: false), rgb(Tokens.clipFill(ClipKind.video), dark: true)),
+                      "fyld skifter ikke med mode")
+            for (media, clip) in [(MediaKind.video, ClipKind.video), (.image, .image), (.audio, .audio)] {
+                try check(same(rgb(Tokens.clipFill(media), dark: dark), rgb(Tokens.clipFill(clip), dark: dark)),
+                          "mediebakken \(media) i \(mode)")
+            }
+        }
     }
 
     /// The rest of the pass: tracks made by dragging past the last one, track names, title styles and places,

@@ -91,7 +91,7 @@ Color filters, speed for only part of a clip (ramps), animated title templates, 
 
 ### Design
 
-The app uses the [IAMJARL design system](https://github.com/JarlLyng/iamjarl-design) (the Swift package `IAMJARLDesignTokens`): every color, spacing, radius and type size in the interface comes from there, and the app follows the system's light or dark mode. `Sources/EddieKit/Theme.swift` holds what the app derives from the tokens (the clips' neutral fill and the button styles). The colors in the video itself, such as title colors and the background, are the user's content and not part of the design system.
+The app uses the [IAMJARL design system](https://github.com/JarlLyng/iamjarl-design) (the Swift package `IAMJARLDesignTokens`): every color, spacing, radius and type size in the interface comes from there, and the app follows the system's light or dark mode. `Sources/EddieKit/Theme.swift` holds what the app derives from the tokens (the clips' fill per kind, from the design system's categorical colors, and the button styles). The colors in the video itself, such as title colors and the background, are the user's content and not part of the design system.
 
 ### Build and test
 

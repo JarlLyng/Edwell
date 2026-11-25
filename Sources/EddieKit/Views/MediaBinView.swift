@@ -108,7 +108,7 @@ private struct MediaTile: View {
             Image(nsImage: image).resizable().aspectRatio(contentMode: .fill)
         } else {
             ZStack {
-                Rectangle().fill(Tokens.clipFill)
+                Rectangle().fill(Tokens.clipFill(media.kind))
                 Image(systemName: media.kind == .audio ? "waveform" : media.kind == .image ? "photo" : "film")
                     .foregroundStyle(Tokens.Palette.Text.secondary)
             }

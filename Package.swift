@@ -10,7 +10,7 @@ let package = Package(
     ],
     dependencies: [
         // The IAMJARL design system: colours, spacing, radius and type for every IAMJARL app.
-        .package(url: "https://github.com/jarllyng/iamjarl-design.git", from: "1.35.0"),
+        .package(url: "https://github.com/jarllyng/iamjarl-design.git", from: "1.39.0"),
     ],
     targets: [
         .target(
